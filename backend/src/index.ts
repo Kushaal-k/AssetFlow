@@ -19,10 +19,13 @@ app.get('/api/health', (req: Request, res: Response) => {
 import allocationRouter from './routes/allocation.routes.js';
 import transferRouter from './routes/transfer.routes.js';
 import bookingRouter from './routes/booking.routes.js';
+import maintenanceRouter from './routes/maintenance.routes.js';
 
 app.use('/api/allocations', allocationRouter);
 app.use('/api/transfers', transferRouter);
 app.use('/api/bookings', bookingRouter);
+app.use('/api/maintenance', maintenanceRouter);
+
 
 // Start the server
 app.listen(port, () => {

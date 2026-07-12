@@ -46,7 +46,8 @@ const updateMaintenanceStatusService = async (id: string, newStatus: Maintenance
             'REJECTED': []
         };
 
-        if (!validTransitions[currentStatus].includes(newStatus)) {
+        const allowed = validTransitions[currentStatus] || [];
+        if (!allowed.includes(newStatus)) {
             throw new Error(`Cannot transition maintenance request from ${currentStatus} to ${newStatus}`);
         }
 
