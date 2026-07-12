@@ -3,15 +3,22 @@ import type { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
+
 import { createAuthRouter } from './routes/auth.js';
 import { createDepartmentRouter } from './routes/departments.js';
 import { createCategoryRouter } from './routes/categories.js';
 import { createUserRepository } from './repositories/userRepository.js';
 import { createDepartmentRepository } from './repositories/departmentRepository.js';
 import { createCategoryRepository } from './repositories/categoryRepository.js';
+
 import type { UserRepository } from './types/user.js';
 import type { DepartmentRepository } from './types/department.js';
 import type { CategoryRepository } from './types/category.js';
+
+import allocationRouter from './routes/allocation.routes.js';
+import transferRouter from './routes/transfer.routes.js';
+import bookingRouter from './routes/booking.routes.js';
+import maintenanceRouter from './routes/maintenance.routes.js';
 
 dotenv.config();
 
@@ -46,6 +53,11 @@ export function createApp(options: AppOptions = {}) {
     const categoryRepository = options.categoryRepository ?? createCategoryRepository();
     app.use('/api/categories', createCategoryRouter(categoryRepository));
   }
+
+  app.use('/api/allocations', allocationRouter);
+  app.use('/api/transfers', transferRouter);
+  app.use('/api/bookings', bookingRouter);
+  app.use('/api/maintenance', maintenanceRouter);
 
   return app;
 }
