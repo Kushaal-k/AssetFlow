@@ -8,8 +8,8 @@ import { UserCircle, Mail, Shield, Save, LogOut } from 'lucide-react'
 export const Profile = () => {
   const { user } = useAuth()
 
-  const initials = user?.full_name
-    ? user.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+  const initials = user?.name
+    ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
     : 'U'
 
   return (
@@ -35,7 +35,7 @@ export const Profile = () => {
             </div>
             <div className="pb-2 flex-1">
               <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white">
-                {user?.full_name || 'Unknown User'}
+                {user?.name || 'Unknown User'}
               </h2>
               <p className="text-slate-500 dark:text-slate-400 font-medium capitalize">
                 {user?.role || 'No Role Assigned'}
@@ -65,7 +65,7 @@ export const Profile = () => {
               </Label>
               <Input
                 id="fullName"
-                defaultValue={user?.full_name || ''}
+                defaultValue={user?.name || ''}
                 placeholder="John Doe"
                 className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800"
               />

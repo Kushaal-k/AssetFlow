@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { supabase } from '../../lib/supabase'
+import { api } from '../../lib/api'
+import { useAuth } from '../../hooks/useAuth'
 import { ROUTES } from '../../constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,6 +21,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export const Login = () => {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
+  const login = useAuth(state => state.login)
   
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema)
@@ -27,15 +29,16 @@ export const Login = () => {
 
   const onSubmit = async (data: LoginFormValues) => {
     setError(null)
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password
-    })
-
-    if (signInError) {
-      setError(signInError.message)
-    } else {
+    try {
+      const response = await api.post('/auth/login', {
+        email: data.email,
+        password: data.password
+      })
+      const { token, user } = response.data
+      login(token, user)
       navigate(ROUTES.DASHBOARD)
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to login')
     }
   }
 

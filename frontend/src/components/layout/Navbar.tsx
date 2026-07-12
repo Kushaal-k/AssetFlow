@@ -11,8 +11,8 @@ export const Navbar = () => {
   const { toggle } = useSidebar()
   const { theme, toggleTheme } = useTheme()
 
-  const initials = user?.full_name
-    ? user.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+  const initials = user?.name
+    ? user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : user?.email?.charAt(0).toUpperCase() || 'U'
 
   return (
@@ -73,7 +73,7 @@ export const Navbar = () => {
             </div>
             <div className="hidden md:block text-left">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate max-w-[120px]">
-                {user?.full_name || user?.email}
+                {user?.name || user?.email}
               </p>
               <p className="text-[11px] text-slate-400 dark:text-slate-500 capitalize leading-tight">
                 {user?.role || 'Guest'}

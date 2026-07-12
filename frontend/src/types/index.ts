@@ -1,13 +1,10 @@
-export type UserRole = 'admin' | 'asset_manager' | 'department_head' | 'employee'
+export type UserRole = 'ADMIN' | 'ASSET_MANAGER' | 'DEPT_HEAD' | 'EMPLOYEE'
 
 export interface User {
   id: string
+  name: string
   email: string
-  full_name?: string
   role: UserRole
-  department_id?: string
-  avatar_url?: string
-  created_at: string
 }
 
 export interface Department {
