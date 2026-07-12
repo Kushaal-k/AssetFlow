@@ -18,14 +18,7 @@ export interface IReturn {
     updatedAt: string;
 }
 
-export interface ITransfer {
-    id: string;
-    allocationId: string;
+export interface IApproveTransferInput {
     newAssignedToId: string;
-    newAssignedDeptId: string;
-    transferDate: string;
-    notes: string;
-    createdAt: string;
-    updatedAt: string;
+    newAssignedDeptId?: string;
 }
-
