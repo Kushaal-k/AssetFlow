@@ -21,6 +21,7 @@ const fetchAssets = async (req: Request, res: Response) => {
 
 const registerAsset = async (req: Request, res: Response) => {
     try {
+        console.log("CREATE ASSET BODY:", req.body);
         const { name, categoryId, departmentId, serialNumber, condition, isBookable } = req.body;
 
         if (!name || !categoryId) {

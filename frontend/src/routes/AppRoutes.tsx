@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ROUTES } from '../constants'
+import { ROUTES, ROLES } from '../constants'
 
 // Layouts
 import { AuthLayout } from '../layouts/AuthLayout'
@@ -62,26 +62,26 @@ export const AppRoutes = () => {
           <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
 
           {/* Admin-only Routes */}
-          <Route element={<RoleRoute allowedRoles={['admin']} />}>
+          <Route element={<RoleRoute allowedRoles={[ROLES.ADMIN]} />}>
             <Route path={ROUTES.ORGANIZATION} element={<Organization />} />
             <Route path={ROUTES.EMPLOYEES} element={<Employees />} />
             <Route path={ROUTES.AUDIT} element={<AuditPlaceholder />} />
           </Route>
 
           {/* Admin & Department Head Routes */}
-          <Route element={<RoleRoute allowedRoles={['admin', 'department_head']} />}>
+          <Route element={<RoleRoute allowedRoles={[ROLES.ADMIN, ROLES.DEPARTMENT_HEAD]} />}>
             <Route path={ROUTES.DEPARTMENTS} element={<Departments />} />
             <Route path={ROUTES.DEPARTMENTS + '/:id'} element={<DepartmentDetailPlaceholder />} />
             <Route path={ROUTES.REPORTS} element={<ReportsPlaceholder />} />
           </Route>
 
           {/* Asset Manager, Department Head, Employee Routes */}
-          <Route element={<RoleRoute allowedRoles={['asset_manager', 'department_head', 'employee']} />}>
+          <Route element={<RoleRoute allowedRoles={[ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE, ROLES.ADMIN]} />}>
             <Route path={ROUTES.BOOKING} element={<BookingPlaceholder />} />
           </Route>
 
           {/* Asset Manager & Employee Routes */}
-          <Route element={<RoleRoute allowedRoles={['asset_manager', 'employee']} />}>
+          <Route element={<RoleRoute allowedRoles={[ROLES.ASSET_MANAGER, ROLES.EMPLOYEE, ROLES.ADMIN]} />}>
             <Route path={ROUTES.MAINTENANCE} element={<MaintenancePlaceholder />} />
           </Route>
 

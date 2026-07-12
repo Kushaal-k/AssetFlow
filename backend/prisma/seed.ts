@@ -1,5 +1,6 @@
 import prisma from '../src/lib/prisma.js';
 import { randomUUID } from 'crypto';
+import bcrypt from 'bcryptjs';
 
 async function main() {
   console.log('Seeding database...');
@@ -25,17 +26,19 @@ async function main() {
 
   // 2. Create Users
   console.log('Creating Users...');
+  const defaultPasswordHash = await bcrypt.hash('password123', 10);
+  
   const adminUser = await prisma.user.create({
-    data: { name: 'Admin User', email: 'admin@assetflow.com', passwordHash: 'hashed_pw', departmentId: deptIT.id }
+    data: { name: 'Admin User', email: 'admin@assetflow.com', passwordHash: defaultPasswordHash, departmentId: deptIT.id, role: 'ADMIN' }
   });
   const devUser = await prisma.user.create({
-    data: { name: 'Jane Developer', email: 'jane@assetflow.com', passwordHash: 'hashed_pw', departmentId: deptEng.id }
+    data: { name: 'Jane Developer', email: 'jane@assetflow.com', passwordHash: defaultPasswordHash, departmentId: deptEng.id, role: 'EMPLOYEE' }
   });
   const designUser = await prisma.user.create({
-    data: { name: 'Alex Designer', email: 'alex@assetflow.com', passwordHash: 'hashed_pw', departmentId: deptDesign.id }
+    data: { name: 'Alex Designer', email: 'alex@assetflow.com', passwordHash: defaultPasswordHash, departmentId: deptDesign.id, role: 'ASSET_MANAGER' }
   });
   const hrUser = await prisma.user.create({
-    data: { name: 'Sam Recruiter', email: 'sam@assetflow.com', passwordHash: 'hashed_pw', departmentId: deptHR.id }
+    data: { name: 'Sam Recruiter', email: 'sam@assetflow.com', passwordHash: defaultPasswordHash, departmentId: deptHR.id, role: 'DEPT_HEAD' }
   });
 
   // 3. Create Categories

@@ -9,7 +9,7 @@ export const useCategories = () => {
       const { data } = await api.get<Category[]>('/categories')
       return data
     },
-    staleTime: 60 * 60 * 1000 // 1 hour
+    staleTime: 5 * 60 * 1000 // 5 minutes
   })
 }
 
@@ -20,6 +20,6 @@ export const useDepartments = () => {
       const { data } = await api.get<Department[]>('/departments')
       return data
     },
-    staleTime: 60 * 60 * 1000 // 1 hour
+    staleTime: 5 * 60 * 1000 // 5 minutes
   })
 }
