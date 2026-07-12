@@ -3,11 +3,12 @@ import type { IFetchUsersQuery, RoleType } from "../types/types.js";
 import type { Role } from "@prisma/client";
 
 const fetchUsersService = async (query: IFetchUsersQuery) => {
+    const where: any = {};
+    if (query.departmentId) where.departmentId = query.departmentId;
+    if (query.role) where.role = query.role as Role;
+
     return await prisma.user.findMany({
-        where: {
-            departmentId: query.departmentId,
-            role: query.role ? (query.role as Role) : undefined
-        },
+        where,
         select: {
             id: true,
             name: true,
