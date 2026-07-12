@@ -1,11 +1,18 @@
 import type { Request, Response } from "express";
 import { createAllocationService } from "../services/allocation.service.js"
+import type { IAllocation } from "../types/types.js";
 
 const createAllocation = async  (req: Request, res: Response) => {
     try{
         const {assetId, assignedToId, assignedDeptId, expectedReturnDate, notes} = req.body;
         
-        const allocation = await createAllocationService(assetId, assignedToId, assignedDeptId, expectedReturnDate, notes);
+        const allocation = await createAllocationService({
+            assetId,
+            assignedToId,
+            assignedDeptId,
+            expectedReturnDate,
+            notes
+        });
 
         return res.status(201).json(allocation);
     }catch(error){
