@@ -50,40 +50,7 @@ const returnAllocationService = async (allocationId: string, notes?: string, con
     });
 }
 
-const transferAllocationService = async (allocationId: string) => {
-    return await prisma.allocation.update({
-        where: { id: allocationId },
-        data: { status: 'TRANSFER_REQUESTED' }
-    });
-}
-
-const approveTransferService = async (allocationId: string, newAssignedToId: string, newAssignedDeptId?: string) => {
-    return await prisma.$transaction(async (tx) => {
-        // 1. Return old allocation
-        const oldAlloc = await tx.allocation.update({
-            where: { id: allocationId },
-            data: { 
-                status: 'RETURNED', 
-                actualReturnDate: new Date() 
-            }
-        });
-
-        // 2. Create new allocation for the new user
-        const newAlloc = await tx.allocation.create({
-            data: {
-                assetId: oldAlloc.assetId,
-                assignedToId: newAssignedToId,
-                ...(newAssignedDeptId && { assignedDeptId: newAssignedDeptId })
-            }
-        });
-
-        return newAlloc;
-    });
-}
-
 export {
     createAllocationService,
-    returnAllocationService,
-    transferAllocationService,
-    approveTransferService
-}
+    returnAllocationService
+};

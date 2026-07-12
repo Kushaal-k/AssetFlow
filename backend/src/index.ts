@@ -17,8 +17,10 @@ app.get('/api/health', (req: Request, res: Response) => {
 });
 
 import allocationRouter from './routes/allocation.routes.js';
+import transferRouter from './routes/transfer.routes.js';
 
 app.use('/api/allocations', allocationRouter);
+app.use('/api/transfers', transferRouter);
 
 // Start the server
 app.listen(port, () => {
