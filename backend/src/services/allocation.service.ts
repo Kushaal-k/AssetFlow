@@ -27,17 +27,58 @@ const createAllocationService = async (allocationData: Prisma.AllocationUnchecke
     });
 }
 
-const returnAllocationService = async (allocationId: string, notes?: string) => {
-    // TODO: We will implement this in Milestone 4. 
-    // It requires updating `actualReturnDate` and setting status to RETURNED.
+const returnAllocationService = async (allocationId: string, notes?: string, condition?: string) => {
+    return await prisma.$transaction(async (tx) => {
+        const updatedAllocation = await tx.allocation.update({
+            where: { id: allocationId },
+            data: {
+                status: 'RETURNED',
+                actualReturnDate: new Date(),
+                ...(notes && { notes })
+            }
+        });
+
+        await tx.asset.update({
+            where: { id: updatedAllocation.assetId },
+            data: {
+                status: 'AVAILABLE',
+                ...(condition && { condition })
+            }
+        });
+
+        return updatedAllocation;
+    });
 }
 
-const transferAllocationService = async (allocationId: string, requestorId: string) => {
-    // TODO: Implement Transfer Request logic (Milestone 4)
+const transferAllocationService = async (allocationId: string) => {
+    return await prisma.allocation.update({
+        where: { id: allocationId },
+        data: { status: 'TRANSFER_REQUESTED' }
+    });
 }
 
-const approveTransferService = async (allocationId: string) => {
-    // TODO: Implement Transfer Approval logic (Milestone 4)
+const approveTransferService = async (allocationId: string, newAssignedToId: string, newAssignedDeptId?: string) => {
+    return await prisma.$transaction(async (tx) => {
+        // 1. Return old allocation
+        const oldAlloc = await tx.allocation.update({
+            where: { id: allocationId },
+            data: { 
+                status: 'RETURNED', 
+                actualReturnDate: new Date() 
+            }
+        });
+
+        // 2. Create new allocation for the new user
+        const newAlloc = await tx.allocation.create({
+            data: {
+                assetId: oldAlloc.assetId,
+                assignedToId: newAssignedToId,
+                ...(newAssignedDeptId && { assignedDeptId: newAssignedDeptId })
+            }
+        });
+
+        return newAlloc;
+    });
 }
 
 export {
