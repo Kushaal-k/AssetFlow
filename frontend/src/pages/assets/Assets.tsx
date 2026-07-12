@@ -1,34 +1,47 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../constants'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Search, Filter, Plus, Box, Cpu, Monitor, Wrench } from 'lucide-react'
-
-// Mock asset data for demo purposes
-const mockAssets = [
-  { id: '1', name: 'MacBook Pro M3 Max', serial: 'C02FX4H9Q05D', category: 'Electronics', status: 'Allocated', assignee: 'Rahul Sharma' },
-  { id: '2', name: 'Dell UltraSharp 27"', serial: 'DEL-U2723DE', category: 'Peripherals', status: 'Available', assignee: '—' },
-  { id: '3', name: 'HP LaserJet Pro', serial: 'HP-LJ-3021B', category: 'Office Equipment', status: 'Maintenance', assignee: '—' },
-  { id: '4', name: 'iPhone 15 Pro', serial: 'DNPX23F9GHR1', category: 'Electronics', status: 'Allocated', assignee: 'Priya Kapoor' },
-  { id: '5', name: 'Ergonomic Chair', serial: 'CHAIR-ERG-097', category: 'Furniture', status: 'Available', assignee: '—' },
-]
+import { Search, Filter, Plus, Box, Cpu, Monitor, Activity, Package } from 'lucide-react'
+import { useAssets } from '../../hooks/api/useAssets'
+import { useCategories } from '../../hooks/api/useReferenceData'
+import { CreateAssetModal } from '../../components/assets/CreateAssetModal'
 
 const statusConfig: Record<string, { label: string; classes: string }> = {
-  Allocated: { label: 'Allocated', classes: 'bg-blue-500/15 text-blue-400 border border-blue-500/20' },
-  Available: { label: 'Available', classes: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' },
-  Maintenance: { label: 'Maintenance', classes: 'bg-rose-500/15 text-rose-400 border border-rose-500/20' },
+  ALLOCATED: { label: 'Allocated', classes: 'bg-blue-500/15 text-blue-500 border border-blue-500/20' },
+  AVAILABLE: { label: 'Available', classes: 'bg-emerald-500/15 text-emerald-500 border border-emerald-500/20' },
+  MAINTENANCE: { label: 'Maintenance', classes: 'bg-amber-500/15 text-amber-500 border border-amber-500/20' },
+  RESERVED: { label: 'Reserved', classes: 'bg-purple-500/15 text-purple-500 border border-purple-500/20' },
+  LOST: { label: 'Lost', classes: 'bg-rose-500/15 text-rose-500 border border-rose-500/20' },
+  RETIRED: { label: 'Retired', classes: 'bg-slate-500/15 text-slate-500 border border-slate-500/20' },
 }
 
-const categoryIcon: Record<string, React.ElementType> = {
-  Electronics: Cpu,
-  Peripherals: Monitor,
-  'Office Equipment': Box,
-  Furniture: Box,
+const getCategoryIcon = (categoryName: string) => {
+  const name = categoryName.toLowerCase()
+  if (name.includes('electronic') || name.includes('laptop')) return Cpu
+  if (name.includes('peripheral') || name.includes('monitor')) return Monitor
+  if (name.includes('furniture')) return Box
+  return Package
 }
 
 export const Assets = () => {
+  const [search, setSearch] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [status, setStatus] = useState('')
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+  // Fetch data
+  const { data: assets, isLoading, error } = useAssets({
+    search: search || undefined,
+    categoryId: categoryId || undefined,
+    status: status || undefined,
+  })
+  
+  const { data: categories } = useCategories()
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
@@ -41,94 +54,120 @@ export const Assets = () => {
             Manage all organization resources and assets.
           </p>
         </div>
-        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-indigo-500/20 gap-2 h-11 px-5 rounded-xl font-semibold">
+        <Button 
+          onClick={() => setIsCreateModalOpen(true)}
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-indigo-500/20 gap-2 h-11 px-5 rounded-xl font-semibold"
+        >
           <Plus className="w-4 h-4" />
           Add New Asset
         </Button>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total', value: '1,248', color: 'from-blue-600/10 to-indigo-600/10 dark:from-blue-500/10 dark:to-indigo-500/10', text: 'text-blue-600 dark:text-blue-400', icon: Box },
-          { label: 'Allocated', value: '842', color: 'from-emerald-600/10 to-teal-600/10 dark:from-emerald-500/10 dark:to-teal-500/10', text: 'text-emerald-600 dark:text-emerald-400', icon: Cpu },
-          { label: 'Available', value: '394', color: 'from-violet-600/10 to-purple-600/10 dark:from-violet-500/10 dark:to-purple-500/10', text: 'text-violet-600 dark:text-violet-400', icon: Monitor },
-          { label: 'In Repair', value: '12', color: 'from-rose-600/10 to-orange-600/10 dark:from-rose-500/10 dark:to-orange-500/10', text: 'text-rose-600 dark:text-rose-400', icon: Wrench },
-        ].map((stat) => {
-          const Icon = stat.icon
-          return (
-            <Card key={stat.label} className={`border-0 shadow-sm bg-gradient-to-br ${stat.color} dark:border dark:border-slate-800/60 transition-all hover:-translate-y-0.5`}>
-              <CardContent className="pt-5 pb-4 px-5 flex items-center gap-3">
-                <Icon className={`h-8 w-8 ${stat.text} flex-shrink-0`} />
-                <div>
-                  <p className={`text-2xl font-black ${stat.text}`}>{stat.value}</p>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{stat.label}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Table card */}
-      <Card className="border-0 shadow-xl shadow-slate-200/50 dark:shadow-none dark:border dark:border-slate-800/60">
-        <CardHeader className="border-b border-slate-100 dark:border-slate-800/60 pb-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <CardTitle className="text-xl font-bold text-slate-800 dark:text-slate-200">All Assets</CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1 sm:flex-none">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="Search assets..."
-                  className="pl-9 h-9 w-full sm:w-[280px] bg-slate-50 dark:bg-slate-900/80 border-slate-200 dark:border-slate-700 rounded-xl text-sm"
-                />
-              </div>
-              <Button variant="outline" size="icon" className="h-9 w-9 border-slate-200 dark:border-slate-700 rounded-xl flex-shrink-0">
-                <Filter className="h-4 w-4 text-slate-500" />
-              </Button>
+      {/* Filters */}
+      <Card className="border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-[#0a0b0f]/50 backdrop-blur-xl shadow-sm">
+        <CardContent className="p-4 flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name, tag, or serial..." 
+              className="pl-9 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 h-10 rounded-xl"
+            />
+          </div>
+          <div className="flex gap-4">
+            <div className="relative w-[180px]">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <select
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+                className="w-full h-10 pl-9 pr-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              >
+                <option value="">All Categories</option>
+                {categories?.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="relative w-[160px]">
+              <select
+                value={status}
+                onChange={(e) => setStatus(e.target.value)}
+                className="w-full h-10 px-3 pr-8 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+              >
+                <option value="">All Statuses</option>
+                {Object.keys(statusConfig).map(s => (
+                  <option key={s} value={s}>{statusConfig[s].label}</option>
+                ))}
+              </select>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
+        </CardContent>
+      </Card>
+
+      {/* Data Table */}
+      <div className="bg-white dark:bg-[#0a0b0f] rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+        {isLoading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Activity className="h-8 w-8 animate-spin text-blue-600" />
+          </div>
+        ) : error ? (
+          <div className="flex h-64 items-center justify-center text-rose-500">
+            Failed to load assets.
+          </div>
+        ) : assets?.length === 0 ? (
+          <div className="flex h-64 items-center justify-center text-slate-500">
+            No assets found matching the criteria.
+          </div>
+        ) : (
           <Table>
-            <TableHeader>
-              <TableRow className="border-slate-100 dark:border-slate-800/60 hover:bg-transparent">
-                <TableHead className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 pl-6">Asset</TableHead>
-                <TableHead className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Serial No.</TableHead>
-                <TableHead className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Category</TableHead>
-                <TableHead className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Status</TableHead>
-                <TableHead className="font-bold text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">Assignee</TableHead>
-                <TableHead className="text-right pr-6"></TableHead>
+            <TableHeader className="bg-slate-50/80 dark:bg-slate-900/50">
+              <TableRow className="hover:bg-transparent border-slate-200 dark:border-slate-800">
+                <TableHead className="font-semibold text-slate-900 dark:text-slate-300">Asset Details</TableHead>
+                <TableHead className="font-semibold text-slate-900 dark:text-slate-300">Category</TableHead>
+                <TableHead className="font-semibold text-slate-900 dark:text-slate-300">Status</TableHead>
+                <TableHead className="font-semibold text-slate-900 dark:text-slate-300">Department</TableHead>
+                <TableHead className="text-right font-semibold text-slate-900 dark:text-slate-300">Actions</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody>
-              {mockAssets.map((asset) => {
-                const Icon = categoryIcon[asset.category] ?? Box
-                const status = statusConfig[asset.status]
+            <TableBody className="divide-y divide-slate-100 dark:divide-slate-800/50">
+              {assets?.map((asset) => {
+                const conf = statusConfig[asset.status] || { label: asset.status, classes: 'bg-slate-100 text-slate-700' }
+                const IconComponent = getCategoryIcon(asset.category.name)
+                
                 return (
-                  <TableRow key={asset.id} className="border-slate-100 dark:border-slate-800/40 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors group">
-                    <TableCell className="pl-6">
-                      <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                  <TableRow key={asset.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors group border-slate-100 dark:border-slate-800/50">
+                    <TableCell className="py-4">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-slate-900 dark:text-slate-200 text-base">{asset.name}</span>
+                        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-1">
+                          <span className="font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider">{asset.tag}</span>
+                          {asset.serialNumber && <span>SN: {asset.serialNumber}</span>}
                         </div>
-                        <span className="font-semibold text-slate-800 dark:text-slate-200">{asset.name}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="font-mono text-sm text-slate-500 dark:text-slate-400">{asset.serial}</TableCell>
-                    <TableCell className="text-sm text-slate-600 dark:text-slate-300">{asset.category}</TableCell>
                     <TableCell>
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${status.classes}`}>
-                        {status.label}
+                      <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 font-medium">
+                        <div className="p-1.5 bg-slate-100 dark:bg-slate-800 rounded-md">
+                          <IconComponent className="w-4 h-4" />
+                        </div>
+                        {asset.category.name}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${conf.classes}`}>
+                        {conf.label}
                       </span>
                     </TableCell>
-                    <TableCell className="text-sm text-slate-600 dark:text-slate-300">{asset.assignee}</TableCell>
-                    <TableCell className="text-right pr-6">
-                      <Link
-                        to={`${ROUTES.ASSETS}/${asset.id}`}
-                        className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors opacity-0 group-hover:opacity-100"
-                      >
-                        View →
+                    <TableCell className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                      {asset.department?.name || '—'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Link to={`${ROUTES.ASSETS}/${asset.id}`}>
+                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 text-blue-600 dark:text-blue-400 font-medium">
+                          View Details
+                        </Button>
                       </Link>
                     </TableCell>
                   </TableRow>
@@ -136,8 +175,12 @@ export const Assets = () => {
               })}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        )}
+      </div>
+
+      {isCreateModalOpen && (
+        <CreateAssetModal onClose={() => setIsCreateModalOpen(false)} />
+      )}
     </div>
   )
 }
