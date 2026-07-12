@@ -5,12 +5,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { authService } from '../../services/auth.service'
 import { ROUTES } from '../../constants'
-
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
-import { Loader2, CheckCircle2 } from 'lucide-react'
+import { Loader2, Zap, Mail, Lock, User, CheckCircle2 } from 'lucide-react'
 
 const signupSchema = z.object({
   fullName: z.string().min(2, 'Name must be at least 2 characters'),
@@ -24,146 +22,155 @@ export const Signup = () => {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  
+
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      password: '',
-    },
+    defaultValues: { fullName: '', email: '', password: '' },
   })
 
   const onSubmit = async (data: SignupFormValues) => {
     setError(null)
-
     try {
       await authService.signup(data.email, data.password, data.fullName)
       setSuccess(true)
-      setTimeout(() => {
-        navigate(ROUTES.LOGIN)
-      }, 4000)
+      setTimeout(() => navigate(ROUTES.LOGIN), 4000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up. Try a different email.')
     }
   }
 
+  if (success) {
+    return (
+      <div className="py-8 flex flex-col items-center justify-center text-center space-y-5">
+        <div className="relative">
+          <div className="h-20 w-20 rounded-full bg-emerald-500/20 flex items-center justify-center">
+            <CheckCircle2 className="h-10 w-10 text-emerald-400" />
+          </div>
+          <div className="absolute inset-0 h-20 w-20 rounded-full bg-emerald-400/20 animate-ping" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-2xl font-black text-white">Account Created!</h3>
+          <p className="text-slate-400 text-sm">Redirecting you to sign in...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="w-full flex items-center justify-center p-4 min-h-[80vh]">
-      <Card className="w-full max-w-md border-0 shadow-2xl shadow-blue-900/10 dark:shadow-indigo-900/20 bg-white/70 dark:bg-slate-950/50 backdrop-blur-xl">
-        <CardHeader className="space-y-3 text-center pb-6">
-          <CardTitle className="text-4xl font-extrabold tracking-tight bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Create Account
-          </CardTitle>
-          <CardDescription className="text-base text-slate-500 dark:text-slate-400 font-medium">
-            Get started with AssetFlow today
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {error && (
-            <div className="mb-6 p-4 bg-rose-50/80 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl text-rose-600 dark:text-rose-400 text-sm font-medium animate-in slide-in-from-top-2">
-              {error}
-            </div>
-          )}
+    <div className="space-y-7">
+      {/* Brand */}
+      <div className="text-center space-y-3">
+        <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 shadow-lg shadow-violet-500/40 mb-2">
+          <Zap className="h-7 w-7 text-white" />
+        </div>
+        <h1 className="text-3xl font-black tracking-tight text-white">
+          Create Account
+        </h1>
+        <p className="text-slate-400 text-sm font-medium">
+          Get started with <span className="text-indigo-400 font-semibold">AssetFlow</span> today
+        </p>
+      </div>
 
-          {success ? (
-            <div className="py-8 flex flex-col items-center justify-center text-center space-y-4 animate-in zoom-in-95 duration-500">
-              <div className="h-16 w-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-2">
-                <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Registration Successful!</h3>
-              <p className="text-slate-500 dark:text-slate-400 font-medium">
-                Your account has been created. Redirecting to login...
-              </p>
-            </div>
-          ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-700 dark:text-slate-300">Full Name</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="John Doe" 
-                          className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 transition-all focus:ring-2 focus:ring-indigo-500/50" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      {/* Error */}
+      {error && (
+        <div className="p-3.5 bg-rose-500/10 border border-rose-500/20 rounded-xl text-rose-400 text-sm font-medium">
+          {error}
+        </div>
+      )}
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-700 dark:text-slate-300">Email Address</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="email"
-                          placeholder="john@example.com" 
-                          className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 transition-all focus:ring-2 focus:ring-indigo-500/50" 
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+      {/* Form */}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-slate-300 text-sm font-semibold flex items-center gap-2">
+                  <User className="h-3.5 w-3.5 text-indigo-400" /> Full Name
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="John Doe"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-indigo-500/60 h-11 rounded-xl transition-all"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className="text-rose-400" />
+              </FormItem>
+            )}
+          />
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-slate-700 dark:text-slate-300">Password</FormLabel>
-                      <FormControl>
-                        <Input 
-                          type="password" 
-                          placeholder="••••••••" 
-                          className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 transition-all focus:ring-2 focus:ring-indigo-500/50"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-slate-300 text-sm font-semibold flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5 text-indigo-400" /> Email Address
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="john@example.com"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-indigo-500/60 h-11 rounded-xl transition-all"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className="text-rose-400" />
+              </FormItem>
+            )}
+          />
 
-                <Button 
-                  type="submit" 
-                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 mt-2"
-                  disabled={form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Creating Account...
-                    </>
-                  ) : (
-                    'Sign Up'
-                  )}
-                </Button>
-              </form>
-            </Form>
-          )}
-        </CardContent>
-        {!success && (
-          <CardFooter className="justify-center border-t border-slate-100 dark:border-slate-800/50 pt-6 mt-2">
-            <div className="text-sm text-slate-500 dark:text-slate-400">
-              Already have an account?{' '}
-              <Link to={ROUTES.LOGIN} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold transition-colors">
-                Sign in securely
-              </Link>
-            </div>
-          </CardFooter>
-        )}
-      </Card>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-slate-300 text-sm font-semibold flex items-center gap-2">
+                  <Lock className="h-3.5 w-3.5 text-indigo-400" /> Password
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    className="bg-white/5 border-white/10 text-white placeholder:text-slate-500 focus:border-indigo-500/60 h-11 rounded-xl transition-all"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage className="text-rose-400" />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="submit"
+            className="w-full h-12 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-violet-600/30 hover:shadow-violet-500/50 transition-all hover:-translate-y-0.5 active:translate-y-0 mt-2 text-base"
+            disabled={form.formState.isSubmitting}
+          >
+            {form.formState.isSubmitting ? (
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Creating Account...</>
+            ) : 'Create Account'}
+          </Button>
+        </form>
+      </Form>
+
+      {/* Footer */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-white/10" />
+        </div>
+        <div className="relative text-center">
+          <span className="bg-slate-900/80 px-3 text-slate-500 text-xs">or</span>
+        </div>
+      </div>
+
+      <p className="text-center text-sm text-slate-500">
+        Already have an account?{' '}
+        <Link to={ROUTES.LOGIN} className="text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
+          Sign in securely →
+        </Link>
+      </p>
     </div>
   )
 }

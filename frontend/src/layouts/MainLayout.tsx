@@ -16,7 +16,10 @@ export const MainLayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-50 transition-colors duration-300 flex">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0b0f] text-slate-900 dark:text-slate-50 transition-colors duration-300 flex">
+      {/* Subtle dark background gradient for dashboard */}
+      <div className="fixed inset-0 dark:bg-[radial-gradient(ellipse_at_top_right,_#1e1b4b20_0%,_transparent_50%)] pointer-events-none" />
+      <div className="fixed inset-0 dark:bg-[radial-gradient(ellipse_at_bottom_left,_#0f172a40_0%,_transparent_60%)] pointer-events-none" />
       {/* Sidebar - Collapsible on desktop, drawer on mobile */}
       <Sidebar />
 
