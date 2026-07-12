@@ -1,19 +1,7 @@
-import { PrismaClient } from '@prisma/client';
 import type { CreateUserInput, UserRecord, UserRepository } from '../types/user.js';
+import { prisma as client } from '../lib/prisma.js';
 
-let prisma: PrismaClient | undefined;
-
-function getPrismaClient(): PrismaClient {
-  if (!prisma) {
-    prisma = new PrismaClient();
-  }
-
-  return prisma;
-}
-
-export function createPrismaUserRepository(): UserRepository {
-  const client = getPrismaClient();
-
+export function createPrismaUserRepository(): UserRepository {
   return {
     async findByEmail(email) {
       const user = await client.user.findUnique({
@@ -23,14 +11,7 @@ export function createPrismaUserRepository(): UserRepository {
       if (!user) {
         return null;
       }
-
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        passwordHash: user.passwordHash,
-        role: user.role,
-      };
+      return user;
     },
 
     async create(input) {
@@ -42,14 +23,7 @@ export function createPrismaUserRepository(): UserRepository {
             passwordHash: input.passwordHash,
           },
         });
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          passwordHash: user.passwordHash,
-          role: user.role,
-        };
+        return user;
       } catch (error) {
         if (
           typeof error === 'object' &&

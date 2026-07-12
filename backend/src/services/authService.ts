@@ -44,7 +44,8 @@ function validateSignupInput(input: SignupInput): SignupInput {
     throw new AuthError('Name is required', 400);
   }
 
-  if (!email || !email.includes('@')) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email)) {
     throw new AuthError('Valid email is required', 400);
   }
 
@@ -70,11 +71,6 @@ export function createAuthService(userRepository: UserRepository) {
   return {
     async signup(input: SignupInput): Promise<AuthResult> {
       const { name, email, password } = validateSignupInput(input);
-
-      const existingUser = await userRepository.findByEmail(email);
-      if (existingUser) {
-        throw new AuthError('Email already registered', 409);
-      }
 
       const passwordHash = await bcrypt.hash(password, 10);
 

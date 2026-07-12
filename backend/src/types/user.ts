@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'ASSET_MANAGER' | 'DEPT_HEAD' | 'EMPLOYEE';
+import type { Role } from '@prisma/client';
 
 export interface PublicUser {
   id: string;

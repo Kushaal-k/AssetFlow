@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 import type { PublicUser } from '../types/user.js';
 
-const DEFAULT_SECRET = 'assetflow-dev-secret-change-in-production';
 const TOKEN_EXPIRY = '7d';
 
 function getJwtSecret(): string {
-  return process.env.JWT_SECRET ?? DEFAULT_SECRET;
+  const secret = process.env.JWT_SECRET;
+  if (!secret) throw new Error('JWT_SECRET environment variable is required');
+  return secret;
 }
 
 export interface JwtPayload {
