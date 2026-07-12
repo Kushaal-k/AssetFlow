@@ -1,129 +1,169 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
 import { authService } from '../../services/auth.service'
 import { ROUTES } from '../../constants'
 
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Loader2, CheckCircle2 } from 'lucide-react'
+
+const signupSchema = z.object({
+  fullName: z.string().min(2, 'Name must be at least 2 characters'),
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
+})
+
+type SignupFormValues = z.infer<typeof signupSchema>
+
 export const Signup = () => {
   const navigate = useNavigate()
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      password: '',
+    },
+  })
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = async (data: SignupFormValues) => {
     setError(null)
-    setIsLoading(true)
 
     try {
-      await authService.signup(email, password, fullName)
+      await authService.signup(data.email, data.password, data.fullName)
       setSuccess(true)
       setTimeout(() => {
         navigate(ROUTES.LOGIN)
       }, 4000)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to sign up. Try a different email.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-          Create Account
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400">
-          Get started with AssetFlow
-        </p>
-      </div>
+    <div className="w-full flex items-center justify-center p-4 min-h-[80vh]">
+      <Card className="w-full max-w-md border-0 shadow-2xl shadow-blue-900/10 dark:shadow-indigo-900/20 bg-white/70 dark:bg-slate-950/50 backdrop-blur-xl">
+        <CardHeader className="space-y-3 text-center pb-6">
+          <CardTitle className="text-4xl font-extrabold tracking-tight bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Create Account
+          </CardTitle>
+          <CardDescription className="text-base text-slate-500 dark:text-slate-400 font-medium">
+            Get started with AssetFlow today
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <div className="mb-6 p-4 bg-rose-50/80 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 rounded-xl text-rose-600 dark:text-rose-400 text-sm font-medium animate-in slide-in-from-top-2">
+              {error}
+            </div>
+          )}
 
-      {error && (
-        <div className="p-3.5 bg-rose-50 dark:bg-rose-950/20 border border-rose-200/50 dark:border-rose-800/30 rounded-xl text-rose-600 dark:text-rose-400 text-sm font-medium">
-          {error}
-        </div>
-      )}
+          {success ? (
+            <div className="py-8 flex flex-col items-center justify-center text-center space-y-4 animate-in zoom-in-95 duration-500">
+              <div className="h-16 w-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-2">
+                <CheckCircle2 className="h-8 w-8 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white">Registration Successful!</h3>
+              <p className="text-slate-500 dark:text-slate-400 font-medium">
+                Your account has been created. Redirecting to login...
+              </p>
+            </div>
+          ) : (
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <FormField
+                  control={form.control}
+                  name="fullName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-slate-700 dark:text-slate-300">Full Name</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="John Doe" 
+                          className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 transition-all focus:ring-2 focus:ring-indigo-500/50" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-      {success ? (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200/50 dark:border-emerald-800/30 rounded-xl text-emerald-600 dark:text-emerald-400 text-sm text-center font-medium">
-          Registration successful! Redirecting to login page...
-        </div>
-      ) : (
-        <form onSubmit={handleSignup} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="John Doe"
-              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-950 text-slate-950 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              required
-              disabled={isLoading}
-            />
-          </div>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-slate-700 dark:text-slate-300">Email Address</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="email"
+                          placeholder="john@example.com" 
+                          className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 transition-all focus:ring-2 focus:ring-indigo-500/50" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="john@example.com"
-              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-950 text-slate-950 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              required
-              disabled={isLoading}
-            />
-          </div>
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-slate-700 dark:text-slate-300">Password</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="password" 
+                          placeholder="••••••••" 
+                          className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 transition-all focus:ring-2 focus:ring-indigo-500/50"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-950 text-slate-950 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-              required
-              disabled={isLoading}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-semibold shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span>Creating Account...</span>
-              </>
-            ) : (
-              <span>Sign Up</span>
-            )}
-          </button>
-        </form>
-      )}
-
-      <div className="text-center text-sm text-slate-500">
-        Already have an account?{' '}
-        <Link to={ROUTES.LOGIN} className="text-blue-600 hover:underline font-semibold">
-          Sign in
-        </Link>
-      </div>
+                <Button 
+                  type="submit" 
+                  className="w-full h-11 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all hover:shadow-indigo-500/40 hover:-translate-y-0.5 active:translate-y-0 mt-2"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting ? (
+                    <>
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      Creating Account...
+                    </>
+                  ) : (
+                    'Sign Up'
+                  )}
+                </Button>
+              </form>
+            </Form>
+          )}
+        </CardContent>
+        {!success && (
+          <CardFooter className="justify-center border-t border-slate-100 dark:border-slate-800/50 pt-6 mt-2">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              Already have an account?{' '}
+              <Link to={ROUTES.LOGIN} className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-semibold transition-colors">
+                Sign in securely
+              </Link>
+            </div>
+          </CardFooter>
+        )}
+      </Card>
     </div>
   )
 }
