@@ -16,6 +16,12 @@ app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', message: 'AssetFlow API is running!' });
 });
 
+import allocationRouter from './routes/allocation.routes.js';
+import transferRouter from './routes/transfer.routes.js';
+
+app.use('/api/allocations', allocationRouter);
+app.use('/api/transfers', transferRouter);
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
