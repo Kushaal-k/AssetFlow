@@ -19,6 +19,7 @@ import allocationRouter from './routes/allocation.routes.js';
 import transferRouter from './routes/transfer.routes.js';
 import bookingRouter from './routes/booking.routes.js';
 import maintenanceRouter from './routes/maintenance.routes.js';
+import auditRouter from './routes/audit.routes.js';
 
 dotenv.config();
 
@@ -58,6 +59,7 @@ export function createApp(options: AppOptions = {}) {
   app.use('/api/transfers', transferRouter);
   app.use('/api/bookings', bookingRouter);
   app.use('/api/maintenance', maintenanceRouter);
+  app.use('/api/audits', auditRouter);
 
   return app;
 }
