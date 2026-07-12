@@ -4,13 +4,21 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
 import { createAuthRouter } from './routes/auth.js';
+import { createDepartmentRouter } from './routes/departments.js';
+import { createCategoryRouter } from './routes/categories.js';
 import { createUserRepository } from './repositories/userRepository.js';
+import { createDepartmentRepository } from './repositories/departmentRepository.js';
+import { createCategoryRepository } from './repositories/categoryRepository.js';
 import type { UserRepository } from './types/user.js';
+import type { DepartmentRepository } from './types/department.js';
+import type { CategoryRepository } from './types/category.js';
 
 dotenv.config();
 
 export interface AppOptions {
   userRepository?: UserRepository;
+  departmentRepository?: DepartmentRepository;
+  categoryRepository?: CategoryRepository;
 }
 
 export function createApp(options: AppOptions = {}) {
@@ -25,6 +33,19 @@ export function createApp(options: AppOptions = {}) {
   });
 
   app.use('/api/auth', createAuthRouter(userRepository));
+
+  // Department and Category routes require a database connection.
+  // They are mounted only when a repository is explicitly provided
+  // or when DATABASE_URL is configured.
+  if (options.departmentRepository || process.env.DATABASE_URL) {
+    const departmentRepository = options.departmentRepository ?? createDepartmentRepository();
+    app.use('/api/departments', createDepartmentRouter(departmentRepository));
+  }
+
+  if (options.categoryRepository || process.env.DATABASE_URL) {
+    const categoryRepository = options.categoryRepository ?? createCategoryRepository();
+    app.use('/api/categories', createCategoryRouter(categoryRepository));
+  }
 
   return app;
 }
