@@ -1,12 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Shield, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { useSidebar } from '../../hooks/useSidebar'
 import { useRole } from '../../hooks/useRole'
 import { sidebarConfig } from '../../config/sidebar'
 import { APP_NAME } from '../../constants'
 
 export const Sidebar = () => {
-  const { isOpen, toggle } = useSidebar()
+  const { isOpen } = useSidebar()
   const { role } = useRole()
   const location = useLocation()
 

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Menu, Bell, Sun, Moon, LogOut, User } from 'lucide-react'
+import { Menu, Bell, Sun, Moon, LogOut } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 import { useSidebar } from '../../hooks/useSidebar'
 import { useTheme } from '../../hooks/useTheme'

@@ -24,8 +24,8 @@ export const Login = () => {
         setToken(session.access_token)
       }
       navigate(ROUTES.DASHBOARD, { replace: true })
-    } catch (err: any) {
-      setError(err?.message || 'Failed to sign in. Please verify credentials.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sign in. Please verify credentials.')
     } finally {
       setIsLoading(false)
     }

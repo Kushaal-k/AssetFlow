@@ -51,3 +51,5 @@ export const ROUTES = {
   PROFILE: '/profile',
   UNAUTHORIZED: '/unauthorized',
 } as const
+
+export const APP_NAME = 'AssetFlow'

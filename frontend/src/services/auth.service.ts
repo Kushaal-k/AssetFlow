@@ -16,7 +16,7 @@ export const authService = {
     }
 
     // Fetch user profile info from users table
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile } = await supabase
       .from('users')
       .select('*')
       .eq('id', authData.user.id)
@@ -66,6 +66,10 @@ export const authService = {
         created_at: new Date().toISOString(),
       },
     ])
+
+    if (profileError) {
+      throw new Error(profileError.message)
+    }
 
     return {
       user: authData.user,

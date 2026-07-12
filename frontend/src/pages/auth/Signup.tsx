@@ -23,8 +23,8 @@ export const Signup = () => {
       setTimeout(() => {
         navigate(ROUTES.LOGIN)
       }, 4000)
-    } catch (err: any) {
-      setError(err?.message || 'Failed to sign up. Try a different email.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sign up. Try a different email.')
     } finally {
       setIsLoading(false)
     }
