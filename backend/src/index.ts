@@ -20,6 +20,8 @@ import transferRouter from './routes/transfer.routes.js';
 import bookingRouter from './routes/booking.routes.js';
 import maintenanceRouter from './routes/maintenance.routes.js';
 import auditRouter from './routes/audit.routes.js';
+import userRouter from './routes/user.routes.js';
+import assetRouter from './routes/asset.routes.js';
 
 dotenv.config();
 
@@ -60,6 +62,8 @@ export function createApp(options: AppOptions = {}) {
   app.use('/api/bookings', bookingRouter);
   app.use('/api/maintenance', maintenanceRouter);
   app.use('/api/audits', auditRouter);
+  app.use('/api/users', userRouter);
+  app.use('/api/assets', assetRouter);
 
   return app;
 }
