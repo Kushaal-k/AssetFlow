@@ -1,15 +1,30 @@
-import { PrismaClient } from "@prisma/client";
-import { Pool } from "pg";
-import { PrismaPg } from "@prisma/adapter-pg";
-import "dotenv/config";
+import { PrismaClient } from '@prisma/client';
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
+import 'dotenv/config';
 
-const connectionString = process.env.DATABASE_URL;
+let prisma: PrismaClient | undefined;
 
-// Initialize the standard PostgreSQL driver
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+export function getPrismaClient(): PrismaClient {
+  if (!prisma) {
+    const connectionString = process.env.DATABASE_URL;
+    if (connectionString) {
+      const pool = new Pool({ connectionString });
+      const adapter = new PrismaPg(pool);
+      prisma = new PrismaClient({ adapter });
+    } else {
+      prisma = new PrismaClient();
+    }
+  }
+  return prisma;
+}
 
-// Pass the adapter to PrismaClient (Required in Prisma 7+)
-const prisma = new PrismaClient({ adapter });
-
-export default prisma;
+// Proxy default export so that 'import prisma from ...' is lazy-evaluated
+// This ensures that PrismaClient is not eagerly instantiated on import,
+// preventing crashes in testing environments where DATABASE_URL is missing.
+export default new Proxy({} as PrismaClient, {
+  get: (_target, prop) => {
+    const client = getPrismaClient();
+    return Reflect.get(client, prop);
+  }
+});

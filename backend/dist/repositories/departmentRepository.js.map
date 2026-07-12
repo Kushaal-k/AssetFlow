@@ -1,0 +1,1 @@
+{"version":3,"file":"departmentRepository.js","sourceRoot":"","sources":["../../src/repositories/departmentRepository.ts"],"names":[],"mappings":"AACA,OAAO,EAAE,gCAAgC,EAAE,MAAM,iCAAiC,CAAC;AAEnF,MAAM,UAAU,0BAA0B;IACxC,IAAI,CAAC,OAAO,CAAC,GAAG,CAAC,YAAY,EAAE,CAAC;QAC9B,MAAM,IAAI,KAAK,CAAC,yFAAyF,CAAC,CAAC;IAC7G,CAAC;IACD,OAAO,gCAAgC,EAAE,CAAC;AAC5C,CAAC"}
