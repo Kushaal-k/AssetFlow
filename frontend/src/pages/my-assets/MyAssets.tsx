@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { allocationService } from '@/services/allocation.service'
 import { maintenanceService } from '@/services/maintenance.service'
-import type { Allocation } from '@/mocks/allocations.mock'
+import type { Allocation } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -66,16 +66,10 @@ export const MyAssets = () => {
     if (!selectedAlloc || !user) return
     try {
       await maintenanceService.create({
-        assetId: selectedAlloc.assetId,
-        assetName: selectedAlloc.assetName,
-        assetTag: selectedAlloc.assetTag,
-        reportedById: user.id,
-        reportedByName: user.full_name || 'User',
-        assignedToId: null,
-        assignedToName: null,
-        issue: values.issue,
-        priority: values.priority,
-        createdAt: new Date().toISOString().split('T')[0],
+        asset_id: selectedAlloc.assetId,
+        raised_by: user.id,
+        description: `Priority: ${values.priority} - ${values.issue}`,
+        created_at: new Date().toISOString(),
       })
       toast.success(`Maintenance request submitted for ${selectedAlloc.assetName}.`)
       setIsReportOpen(false)

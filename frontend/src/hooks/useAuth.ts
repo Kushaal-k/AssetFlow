@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { User } from '../types'
+import type { User, UserRole } from '../types'
+import { supabase } from '@/lib/supabase'
 
 interface AuthState {
   user: User | null
@@ -8,24 +9,54 @@ interface AuthState {
   isAuthenticated: boolean
   setUser: (user: User | null) => void
   setToken: (token: string | null) => void
-  login: (token: string, user: User) => void
-  logout: () => void
+  logout: () => Promise<void>
   initializeAuth: () => void
 }
 
 export const useAuth = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       token: null,
       isAuthenticated: false,
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       setToken: (token) => set({ token }),
-      login: (token, user) => set({ token, user, isAuthenticated: true }),
-      logout: () => set({ user: null, token: null, isAuthenticated: false }),
+      logout: async () => {
+        await supabase.auth.signOut()
+        set({ user: null, token: null, isAuthenticated: false })
+      },
       initializeAuth: () => {
-        // With Zustand persist, the state is rehydrated automatically from localStorage.
-        // If we needed to validate the token on load, we could do it here via API.
+        // Fetch initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            get().setToken(session.access_token)
+            // Map Supabase user to local user schema
+            get().setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              full_name: session.user.user_metadata?.full_name || 'User',
+              role: (session.user.user_metadata?.role as UserRole) || 'employee',
+              created_at: session.user.created_at
+            })
+          }
+        })
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((_event, session) => {
+          if (session?.user) {
+            get().setToken(session.access_token)
+            get().setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              full_name: session.user.user_metadata?.full_name || 'User',
+              role: (session.user.user_metadata?.role as UserRole) || 'employee',
+              created_at: session.user.created_at
+            })
+          } else {
+            get().setToken(null)
+            get().setUser(null)
+          }
+        })
       }
     }),
     {

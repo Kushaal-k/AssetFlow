@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { bookingService } from '@/services/booking.service'
 import { assetService } from '@/services/asset.service'
-import type { Booking } from '@/mocks/bookings.mock'
-import type { Asset } from '@/mocks/assets.mock'
+import type { Booking } from '@/types'
+import type { Asset } from '@/types'
 import { useAuth } from '@/hooks/useAuth'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -80,11 +80,11 @@ export const BookingPage = () => {
       const rangeEnd = new Date(values.endDate).getTime()
 
       const hasOverlap = bookings.some((b) => {
-        if (b.assetId !== selectedAsset.id) return false
+        if (b.assetId !== selectedAsset.id && b.asset_id !== selectedAsset.id) return false
         if (b.status === 'rejected') return false
 
-        const bStart = new Date(b.startDate).getTime()
-        const bEnd = new Date(b.endDate).getTime()
+        const bStart = new Date(b.startDate || b.start_date).getTime()
+        const bEnd = new Date(b.endDate || b.end_date).getTime()
 
         // Overlap formula: (StartA <= EndB) and (EndA >= StartB)
         return rangeStart <= bEnd && rangeEnd >= bStart
@@ -96,15 +96,12 @@ export const BookingPage = () => {
       }
 
       const newBooking = await bookingService.create({
-        assetId: selectedAsset.id,
-        assetName: selectedAsset.name,
-        assetTag: selectedAsset.tag,
-        employeeId: user?.id || 'u-temp',
-        employeeName: user?.full_name || 'Guest User',
-        department: 'Engineering',
-        startDate: values.startDate,
-        endDate: values.endDate,
-        purpose: values.purpose,
+        asset_id: selectedAsset.id,
+        requested_by: user?.id || 'u-temp',
+        start_date: values.startDate,
+        end_date: values.endDate,
+        reason: values.purpose,
+        created_at: new Date().toISOString(),
       })
 
       setBookings((prev) => [newBooking, ...prev])
@@ -174,8 +171,8 @@ export const BookingPage = () => {
               <div key={asset.id} className="grid grid-cols-7 gap-2 items-center">
                 {upcomingDays.map((day) => {
                   const isReserved = bookings.some((b) => {
-                    if (b.assetId !== asset.id || b.status === 'rejected') return false
-                    return day >= b.startDate && day <= b.endDate
+                    if (b.assetId !== asset.id && b.asset_id !== asset.id || b.status === 'rejected') return false
+                    return day >= (b.startDate || b.start_date) && day <= (b.endDate || b.end_date)
                   })
 
                   return (
@@ -229,20 +226,20 @@ export const BookingPage = () => {
                 {bookings.map((booking) => (
                   <TableRow key={booking.id} className="border-slate-100 dark:border-slate-800/40 hover:bg-slate-50/80 dark:hover:bg-slate-800/30 transition-colors">
                     <TableCell className="pl-6">
-                      <div className="font-bold text-slate-800 dark:text-slate-200">{booking.assetName}</div>
-                      <div className="text-xs font-semibold text-indigo-500 mt-0.5">{booking.assetTag}</div>
+                      <div className="font-bold text-slate-800 dark:text-slate-200">{booking.assetName || 'N/A'}</div>
+                      <div className="text-xs font-semibold text-indigo-500 mt-0.5">{booking.assetTag || ''}</div>
                     </TableCell>
                     <TableCell>
-                      <div className="font-bold text-slate-700 dark:text-slate-200">{booking.employeeName}</div>
-                      <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{booking.department}</div>
+                      <div className="font-bold text-slate-700 dark:text-slate-200">{booking.employeeName || 'Unknown'}</div>
+                      <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{booking.department || 'Engineering'}</div>
                     </TableCell>
                     <TableCell className="text-sm font-medium text-slate-600 dark:text-slate-400">
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3.5 h-3.5 text-slate-400" />
-                        {booking.startDate} to {booking.endDate}
+                        {(booking.startDate || booking.start_date)} to {(booking.endDate || booking.end_date)}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm text-slate-600 dark:text-slate-350">{booking.purpose}</TableCell>
+                    <TableCell className="text-sm text-slate-600 dark:text-slate-350">{booking.purpose || booking.reason || ''}</TableCell>
                     <TableCell>
                       <StatusBadge status={booking.status} />
                     </TableCell>

@@ -5,8 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { allocationService } from '@/services/allocation.service'
 import { assetService } from '@/services/asset.service'
-import type { Allocation } from '@/mocks/allocations.mock'
-import type { Asset } from '@/mocks/assets.mock'
+import type { Allocation } from '@/types'
+import type { Asset } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -91,7 +91,7 @@ export const AllocationPage = () => {
         employeeName: selectedEmp.name,
         department: selectedEmp.department,
         allocatedAt: new Date().toISOString().split('T')[0],
-        dueDate: values.dueDate || null,
+        dueDate: values.dueDate || undefined,
         notes: values.notes,
       })
 
@@ -200,7 +200,7 @@ export const AllocationPage = () => {
                       )}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={alloc.status} />
+                      <StatusBadge status={alloc.status as any} />
                     </TableCell>
                     <TableCell className="text-right pr-6">
                       <Button 

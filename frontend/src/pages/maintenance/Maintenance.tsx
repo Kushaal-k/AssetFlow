@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { maintenanceService } from '@/services/maintenance.service'
-import type { MaintenanceRequest } from '@/mocks/maintenance.mock'
+import type { MaintenanceRequest } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -163,8 +163,8 @@ export const MaintenancePage = () => {
                       <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">{req.reportedByName}</div>
                     </TableCell>
                     <TableCell>
-                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${getPriorityClasses(req.priority)}`}>
-                        {req.priority}
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${getPriorityClasses(req.priority || 'medium')}`}>
+                        {req.priority || 'medium'}
                       </span>
                     </TableCell>
                     <TableCell>

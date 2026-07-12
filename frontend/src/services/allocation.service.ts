@@ -1,22 +1,54 @@
-import { mockAllocations, type Allocation } from '../mocks/allocations.mock'
-
-const delay = (ms = 300) => new Promise((res) => setTimeout(res, ms))
+import { supabase } from '@/lib/supabase'
+import type { Allocation } from '@/types'
 
 export const allocationService = {
   getAll: async (): Promise<Allocation[]> => {
-    await delay()
-    return [...mockAllocations]
+    const { data, error } = await supabase
+      .from('allocations')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (error) throw new Error(error.message)
+    return (data as Allocation[]) || []
   },
+
   getByEmployeeId: async (employeeId: string): Promise<Allocation[]> => {
-    await delay()
-    return mockAllocations.filter((a) => a.employeeId === employeeId)
+    const { data, error } = await supabase
+      .from('allocations')
+      .select('*')
+      .eq('employeeId', employeeId)
+      .order('created_at', { ascending: false })
+    if (error) throw new Error(error.message)
+    return (data as Allocation[]) || []
   },
+
   allocate: async (data: Omit<Allocation, 'id' | 'status'>): Promise<Allocation> => {
-    await delay(500)
-    return { ...data, id: String(Date.now()), status: 'allocated' }
+    const payload = {
+      assetId: data.assetId,
+      assetName: data.assetName,
+      assetTag: data.assetTag,
+      category: data.category,
+      employeeId: data.employeeId,
+      employeeName: data.employeeName,
+      department: data.department,
+      allocatedAt: data.allocatedAt,
+      dueDate: data.dueDate || null,
+      notes: data.notes || null,
+      status: 'active',
+    }
+    const { data: created, error } = await supabase
+      .from('allocations')
+      .insert([payload])
+      .select()
+      .single()
+    if (error) throw new Error(error.message)
+    return created as Allocation
   },
+
   deallocate: async (id: string): Promise<void> => {
-    await delay(500)
-    console.log('Deallocated', id) // stub
+    const { error } = await supabase
+      .from('allocations')
+      .update({ status: 'returned' })
+      .eq('id', id)
+    if (error) throw new Error(error.message)
   },
 }

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { ROUTES } from '../../constants'
 import { assetService } from '@/services/asset.service'
-import type { Asset } from '@/mocks/assets.mock'
+import type { Asset } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -78,10 +78,12 @@ export const Assets = () => {
       const newAsset = await assetService.create({
         ...values,
         status: 'available',
-        assigneeId: null,
-        assigneeName: null,
-        department: null,
-        purchaseDate: new Date().toISOString().split('T')[0],
+        assigneeId: undefined,
+        assigneeName: undefined,
+        departmentName: undefined,
+        serial_number: values.serial,
+        purchase_date: new Date().toISOString().split('T')[0],
+        created_at: new Date().toISOString(),
       })
       setAssets((prev) => [newAsset, ...prev])
       setIsRegisterOpen(false)
@@ -96,9 +98,9 @@ export const Assets = () => {
     const query = searchQuery.toLowerCase()
     return (
       asset.name.toLowerCase().includes(query) ||
-      asset.serial.toLowerCase().includes(query) ||
-      asset.tag.toLowerCase().includes(query) ||
-      asset.category.toLowerCase().includes(query)
+      (asset.serial || asset.serial_number || '').toLowerCase().includes(query) ||
+      (asset.tag || '').toLowerCase().includes(query) ||
+      (asset.category || '').toLowerCase().includes(query)
     )
   })
 
