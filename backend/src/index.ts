@@ -22,6 +22,7 @@ import maintenanceRouter from './routes/maintenance.routes.js';
 import auditRouter from './routes/audit.routes.js';
 import userRouter from './routes/user.routes.js';
 import assetRouter from './routes/asset.routes.js';
+import dashboardRouter from './routes/dashboard.routes.js';
 
 dotenv.config();
 
@@ -64,6 +65,7 @@ export function createApp(options: AppOptions = {}) {
   app.use('/api/audits', auditRouter);
   app.use('/api/users', userRouter);
   app.use('/api/assets', assetRouter);
+  app.use('/api/dashboard', dashboardRouter);
 
   return app;
 }
