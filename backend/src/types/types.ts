@@ -56,6 +56,7 @@ export interface IFetchMaintenanceQuery {
     priority?: MaintenancePriority;
 }
 
+// === AUDIT API TYPES ===
 export type AuditStatus = 'OPEN' | 'CLOSED';
 export type AuditItemStatus = 'VERIFIED' | 'MISSING' | 'DAMAGED';
 
@@ -71,6 +72,27 @@ export interface IRecordAuditItemInput {
     notes?: string;
 }
 
+// === DASHBOARD API TYPES ===
+export interface IOverdueAllocation {
+    id: string;
+    assetId: string;
+    assetName: string;
+    assetTag: string;
+    assignedToId?: string | null;
+    assignedToName?: string | null;
+    expectedReturnDate: string; // ISO String
+}
+
+export interface IDashboardStats {
+    totalAssets: number;
+    availableAssets: number;
+    allocatedAssets: number;
+    maintenanceAssets: number;
+    lostAssets: number;
+    overdueAllocations: IOverdueAllocation[];
+}
+
+// === USER AND ASSET API TYPES ===
 export type RoleType = 'ADMIN' | 'ASSET_MANAGER' | 'DEPT_HEAD' | 'EMPLOYEE';
 
 export interface IFetchUsersQuery {
@@ -97,3 +119,4 @@ export interface ICreateAssetInput {
     condition?: string;
     isBookable?: boolean;
 }
+
