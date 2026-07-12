@@ -60,7 +60,7 @@ const recordAuditItemService = async (input: IRecordAuditItemInput) => {
                 where: { id: record.id },
                 data: {
                     status: input.status,
-                    notes: input.notes,
+                    notes: input.notes ?? null,
                     auditorId: input.auditorId
                 }
             });
@@ -71,7 +71,7 @@ const recordAuditItemService = async (input: IRecordAuditItemInput) => {
                     assetId: input.assetId,
                     auditorId: input.auditorId,
                     status: input.status,
-                    notes: input.notes
+                    notes: input.notes ?? null
                 }
             });
         }
