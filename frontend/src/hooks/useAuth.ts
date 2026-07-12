@@ -1,24 +1,67 @@
-import { useAuth as useClerkAuth, useUser } from '@clerk/clerk-react'
+import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { User, UserRole } from '../types'
+import { supabase } from '../lib/supabase'
 
-export const useAuth = () => {
-  const { isLoaded, isSignedIn, sessionId, signOut } = useClerkAuth()
-  const { user: clerkUser } = useUser()
-
-  const user: User | null = clerkUser ? {
-    id: clerkUser.id,
-    email: clerkUser.primaryEmailAddress?.emailAddress || '',
-    full_name: clerkUser.fullName || '',
-    role: (clerkUser.publicMetadata?.role as UserRole) || 'employee',
-    created_at: clerkUser.createdAt ? clerkUser.createdAt.toISOString() : new Date().toISOString()
-  } : null
-
-  return {
-    user,
-    token: sessionId || null,
-    isAuthenticated: isLoaded ? !!isSignedIn : false,
-    setUser: () => {}, // No-op since Clerk handles state
-    setToken: () => {}, // No-op since Clerk handles state
-    logout: signOut,
-  }
+interface AuthState {
+  user: User | null
+  token: string | null
+  isAuthenticated: boolean
+  setUser: (user: User | null) => void
+  setToken: (token: string | null) => void
+  logout: () => Promise<void>
+  initializeAuth: () => void
 }
+
+export const useAuth = create<AuthState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      token: null,
+      isAuthenticated: false,
+      setUser: (user) => set({ user, isAuthenticated: !!user }),
+      setToken: (token) => set({ token }),
+      logout: async () => {
+        await supabase.auth.signOut()
+        set({ user: null, token: null, isAuthenticated: false })
+      },
+      initializeAuth: () => {
+        // Fetch initial session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            get().setToken(session.access_token)
+            // Map Supabase user to local user schema
+            get().setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              full_name: session.user.user_metadata?.full_name || 'User',
+              role: (session.user.user_metadata?.role as UserRole) || 'employee',
+              created_at: session.user.created_at
+            })
+          }
+        })
+
+        // Listen for auth changes
+        supabase.auth.onAuthStateChange((_event, session) => {
+          if (session?.user) {
+            get().setToken(session.access_token)
+            get().setUser({
+              id: session.user.id,
+              email: session.user.email || '',
+              full_name: session.user.user_metadata?.full_name || 'User',
+              role: (session.user.user_metadata?.role as UserRole) || 'employee',
+              created_at: session.user.created_at
+            })
+          } else {
+            get().setToken(null)
+            get().setUser(null)
+          }
+        })
+      }
+    }),
+    {
+      name: 'assetflow-auth',
+      partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+    }
+  )
+)

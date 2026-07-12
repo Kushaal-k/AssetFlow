@@ -19,11 +19,11 @@ import { Assets } from '../pages/assets/Assets'
 import { AssetDetail } from '../pages/assets/AssetDetail'
 import { Employees } from '../pages/employees/Employees'
 import { Organization } from '../pages/organization/Organization'
+import { Departments } from '../pages/departments/Departments'
 import { Profile } from '../pages/profile/Profile'
 
 // Sukanshi Page Placeholders
 import {
-  DepartmentsPlaceholder,
   DepartmentDetailPlaceholder,
   BookingPlaceholder,
   MaintenancePlaceholder,
@@ -70,7 +70,7 @@ export const AppRoutes = () => {
 
           {/* Admin & Department Head Routes */}
           <Route element={<RoleRoute allowedRoles={['admin', 'department_head']} />}>
-            <Route path={ROUTES.DEPARTMENTS} element={<DepartmentsPlaceholder />} />
+            <Route path={ROUTES.DEPARTMENTS} element={<Departments />} />
             <Route path={ROUTES.DEPARTMENTS + '/:id'} element={<DepartmentDetailPlaceholder />} />
             <Route path={ROUTES.REPORTS} element={<ReportsPlaceholder />} />
           </Route>
