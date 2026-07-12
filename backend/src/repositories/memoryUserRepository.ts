@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { CreateUserInput, UserRecord, UserRepository } from '../types/user.js';
+import type { UserRecord, UserRepository } from '../types/user.js';
 
 export function createMemoryUserRepository(): UserRepository {
   const usersByEmail = new Map<string, UserRecord>();

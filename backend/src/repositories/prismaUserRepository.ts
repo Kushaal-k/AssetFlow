@@ -1,7 +1,9 @@
-import type { CreateUserInput, UserRecord, UserRepository } from '../types/user.js';
-import { prisma as client } from '../lib/prisma.js';
+import type { UserRepository } from '../types/user.js';
+import { getPrismaClient } from '../lib/prisma.js';
 
-export function createPrismaUserRepository(): UserRepository {
+export function createPrismaUserRepository(): UserRepository {
+  const client = getPrismaClient();
+
   return {
     async findByEmail(email) {
       const user = await client.user.findUnique({
@@ -31,7 +33,7 @@ export function createPrismaUserRepository(): UserRepository {
           'code' in error &&
           error.code === 'P2002'
         ) {
-          throw new Error('EMAIL_EXISTS');
+          throw new Error('EMAIL_EXISTS', { cause: error });
         }
 
         throw error;
