@@ -1,13 +1,240 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+// ------------------------------------------------------
+// ENUMS
+// ------------------------------------------------------
+
+enum Role {
+  ADMIN
+  ASSET_MANAGER
+  DEPT_HEAD
+  EMPLOYEE
+}
+
+enum DepartmentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum AssetStatus {
+  AVAILABLE
+  ALLOCATED
+  RESERVED
+  MAINTENANCE
+  LOST
+  RETIRED
+  DISPOSED
+}
+
+enum AllocationStatus {
+  ACTIVE
+  RETURNED
+  TRANSFER_REQUESTED
+  OVERDUE
+}
+
+enum BookingStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintenanceStatus {
+  PENDING
+  APPROVED
+  IN_PROGRESS
+  RESOLVED
+  REJECTED
+}
+
+enum AuditStatus {
+  OPEN
+  CLOSED
+}
+
+enum AuditItemStatus {
+  VERIFIED
+  MISSING
+  DAMAGED
+}
+
+// ------------------------------------------------------
+// MODELS
+// ------------------------------------------------------
+
+model User {
+  id            String       @id @default(uuid())
+  name          String
+  email         String       @unique
+  passwordHash  String
+  role          Role         @default(EMPLOYEE)
+  
+  departmentId  String?
+  department    Department?  @relation(fields: [departmentId], references: [id])
+
+  // Relations
+  headedDepartments Department[] @relation("DepartmentHead")
+  allocations       Allocation[]
+  bookings          Booking[]
+  raisedMaintenance MaintenanceRequest[]
+  auditRecords      AuditRecord[]
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Department {
+  id            String       @id @default(uuid())
+  name          String
+  status        DepartmentStatus @default(ACTIVE)
+  
+  headId        String?
+  head          User?        @relation("DepartmentHead", fields: [headId], references: [id])
+  
+  parentId      String?
+  parent        Department?  @relation("DepartmentHierarchy", fields: [parentId], references: [id])
+  subDepartments Department[] @relation("DepartmentHierarchy")
+
+  users         User[]
+  assets        Asset[]
+  allocations   Allocation[]
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model AssetCategory {
+  id            String       @id @default(uuid())
+  name          String       @unique
+  attributes    Json?        // Flexible fields e.g., { "warranty": "string" }
+  
+  assets        Asset[]
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Asset {
+  id            String       @id @default(uuid())
+  tag           String       @unique // e.g., AF-0001
+  name          String
+  serialNumber  String?
+  condition     String?
+  isBookable    Boolean      @default(false)
+  status        AssetStatus  @default(AVAILABLE)
+  
+  categoryId    String
+  category      AssetCategory @relation(fields: [categoryId], references: [id])
+  
+  departmentId  String?
+  department    Department?   @relation(fields: [departmentId], references: [id])
+
+  // Relations
+  allocations   Allocation[]
+  bookings      Booking[]
+  maintenanceRequests MaintenanceRequest[]
+  auditRecords  AuditRecord[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Allocation {
+  id                 String       @id @default(uuid())
+  
+  assetId            String
+  asset              Asset        @relation(fields: [assetId], references: [id])
+  
+  assignedToId       String?
+  assignedTo         User?        @relation(fields: [assignedToId], references: [id])
+  
+  assignedDeptId     String?
+  assignedDept       Department?  @relation(fields: [assignedDeptId], references: [id])
+
+  startDate          DateTime     @default(now())
+  expectedReturnDate DateTime?
+  actualReturnDate   DateTime?
+  
+  status             AllocationStatus @default(ACTIVE)
+  notes              String?
+  
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+}
+
+model Booking {
+  id            String       @id @default(uuid())
+  
+  assetId       String
+  asset         Asset        @relation(fields: [assetId], references: [id])
+  
+  bookedById    String
+  bookedBy      User         @relation(fields: [bookedById], references: [id])
+  
+  startTime     DateTime
+  endTime       DateTime
+  status        BookingStatus @default(UPCOMING)
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model MaintenanceRequest {
+  id               String       @id @default(uuid())
+  
+  assetId          String
+  asset            Asset        @relation(fields: [assetId], references: [id])
+  
+  raisedById       String
+  raisedBy         User         @relation(fields: [raisedById], references: [id])
+  
+  issueDescription String
+  priority         String       // e.g. "HIGH", "MEDIUM", "LOW"
+  status           MaintenanceStatus @default(PENDING)
+  
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model AuditCycle {
+  id            String       @id @default(uuid())
+  name          String
+  status        AuditStatus  @default(OPEN)
+  
+  startDate     DateTime     @default(now())
+  endDate       DateTime?
+  
+  records       AuditRecord[]
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model AuditRecord {
+  id            String       @id @default(uuid())
+  
+  cycleId       String
+  cycle         AuditCycle   @relation(fields: [cycleId], references: [id])
+  
+  assetId       String
+  asset         Asset        @relation(fields: [assetId], references: [id])
+  
+  auditorId     String
+  auditor       User         @relation(fields: [auditorId], references: [id])
+  
+  status        AuditItemStatus
+  notes         String?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
