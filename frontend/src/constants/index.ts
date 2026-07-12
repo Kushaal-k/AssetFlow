@@ -43,6 +43,8 @@ export const ROUTES = {
   DEPARTMENTS: '/departments',
   EMPLOYEES: '/employees',
   ASSETS: '/assets',
+  ALLOCATION: '/allocation',
+  MY_ASSETS: '/my-assets',
   BOOKING: '/booking',
   MAINTENANCE: '/maintenance',
   AUDIT: '/audit',

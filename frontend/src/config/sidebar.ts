@@ -51,10 +51,22 @@ export const sidebarConfig: SidebarItem[] = [
     roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
   },
   {
+    title: 'Allocations',
+    path: ROUTES.ALLOCATION,
+    icon: ClipboardList,
+    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER],
+  },
+  {
+    title: 'My Assets',
+    path: ROUTES.MY_ASSETS,
+    icon: User,
+    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
+  },
+  {
     title: 'Booking Calendar',
     path: ROUTES.BOOKING,
     icon: Calendar,
-    roles: [ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
+    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
   },
   {
     title: 'Maintenance',

@@ -1,7 +1,7 @@
 // Placeholder pages for features owned by other team members.
 // These render a consistent "Under Construction" UI.
 import { Card, CardContent } from '@/components/ui/card'
-import { Construction, Calendar, BarChart3, Bell, ClipboardList, Building2, User } from 'lucide-react'
+import { Construction, BarChart3, Bell, Building2, User } from 'lucide-react'
 
 interface ComingSoonPageProps {
   title: string
@@ -48,16 +48,6 @@ const ComingSoonPage = ({
   </div>
 )
 
-export const DepartmentsPlaceholder = () => (
-  <ComingSoonPage
-    title="Departments"
-    description="Manage your organizational hierarchy and teams."
-    icon={Building2}
-    owner="Sukanshi"
-    accentColor="from-violet-500 to-purple-600"
-  />
-)
-
 export const DepartmentDetailPlaceholder = () => (
   <ComingSoonPage
     title="Department Details"
@@ -65,26 +55,6 @@ export const DepartmentDetailPlaceholder = () => (
     icon={Building2}
     owner="Sukanshi"
     accentColor="from-violet-500 to-purple-600"
-  />
-)
-
-export const BookingPlaceholder = () => (
-  <ComingSoonPage
-    title="Booking Calendar"
-    description="Reserve assets and schedule resource allocations."
-    icon={Calendar}
-    owner="Sukanshi"
-    accentColor="from-emerald-500 to-teal-600"
-  />
-)
-
-export const MaintenancePlaceholder = () => (
-  <ComingSoonPage
-    title="Maintenance Requests"
-    description="Track and manage asset repairs and service tickets."
-    icon={ClipboardList}
-    owner="Sukanshi"
-    accentColor="from-rose-500 to-orange-600"
   />
 )
 
@@ -104,14 +74,5 @@ export const NotificationsPlaceholder = () => (
     description="Stay updated with real-time alerts and activity feeds."
     icon={Bell}
     accentColor="from-amber-500 to-orange-600"
-  />
-)
-
-export const AuditPlaceholder = () => (
-  <ComingSoonPage
-    title="Audit Logs"
-    description="Full historical trail of every action in the system."
-    icon={ClipboardList}
-    accentColor="from-slate-500 to-slate-700"
   />
 )

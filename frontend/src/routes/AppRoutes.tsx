@@ -10,7 +10,7 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { PublicRoute } from './PublicRoute'
 import { RoleRoute } from './RoleRoute'
 
-// Dev 1 Pages
+// Pages
 import { Login } from '../pages/auth/Login'
 import { Signup } from '../pages/auth/Signup'
 import { Unauthorized } from '../pages/auth/Unauthorized'
@@ -22,14 +22,18 @@ import { Organization } from '../pages/organization/Organization'
 import { Departments } from '../pages/departments/Departments'
 import { Profile } from '../pages/profile/Profile'
 
-// Sukanshi Page Placeholders
+// New Features (Replaced Placeholders)
+import { AllocationPage } from '../pages/allocation/Allocation'
+import { MyAssets } from '../pages/my-assets/MyAssets'
+import { BookingPage } from '../pages/booking/Booking'
+import { MaintenancePage } from '../pages/maintenance/Maintenance'
+import { AuditPage } from '../pages/audit/Audit'
+
+// Remaining Placeholders
 import {
   DepartmentDetailPlaceholder,
-  BookingPlaceholder,
-  MaintenancePlaceholder,
   ReportsPlaceholder,
   NotificationsPlaceholder,
-  AuditPlaceholder,
 } from '../pages/placeholder'
 
 export const AppRoutes = () => {
@@ -61,11 +65,14 @@ export const AppRoutes = () => {
           {/* Unauthorized Page */}
           <Route path={ROUTES.UNAUTHORIZED} element={<Unauthorized />} />
 
+          {/* User Personal Gear View */}
+          <Route path={ROUTES.MY_ASSETS} element={<MyAssets />} />
+
           {/* Admin-only Routes */}
           <Route element={<RoleRoute allowedRoles={['admin']} />}>
             <Route path={ROUTES.ORGANIZATION} element={<Organization />} />
             <Route path={ROUTES.EMPLOYEES} element={<Employees />} />
-            <Route path={ROUTES.AUDIT} element={<AuditPlaceholder />} />
+            <Route path={ROUTES.AUDIT} element={<AuditPage />} />
           </Route>
 
           {/* Admin & Department Head Routes */}
@@ -75,14 +82,19 @@ export const AppRoutes = () => {
             <Route path={ROUTES.REPORTS} element={<ReportsPlaceholder />} />
           </Route>
 
+          {/* Allocation - Admin & Asset Managers */}
+          <Route element={<RoleRoute allowedRoles={['admin', 'asset_manager']} />}>
+            <Route path={ROUTES.ALLOCATION} element={<AllocationPage />} />
+          </Route>
+
           {/* Asset Manager, Department Head, Employee Routes */}
-          <Route element={<RoleRoute allowedRoles={['asset_manager', 'department_head', 'employee']} />}>
-            <Route path={ROUTES.BOOKING} element={<BookingPlaceholder />} />
+          <Route element={<RoleRoute allowedRoles={['admin', 'asset_manager', 'department_head', 'employee']} />}>
+            <Route path={ROUTES.BOOKING} element={<BookingPage />} />
           </Route>
 
           {/* Asset Manager & Employee Routes */}
-          <Route element={<RoleRoute allowedRoles={['asset_manager', 'employee']} />}>
-            <Route path={ROUTES.MAINTENANCE} element={<MaintenancePlaceholder />} />
+          <Route element={<RoleRoute allowedRoles={['admin', 'asset_manager', 'employee']} />}>
+            <Route path={ROUTES.MAINTENANCE} element={<MaintenancePage />} />
           </Route>
 
           {/* Assets - Shared view with detail path */}
