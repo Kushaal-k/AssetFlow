@@ -85,7 +85,7 @@ export const Navbar = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={logout}
+            onClick={() => logout()}
             className="text-slate-400 dark:text-slate-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 rounded-xl transition-all"
             aria-label="Log Out"
           >

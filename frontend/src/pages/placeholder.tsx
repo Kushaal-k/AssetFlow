@@ -1,7 +1,7 @@
 // Placeholder pages for features owned by other team members.
 // These render a consistent "Under Construction" UI.
 import { Card, CardContent } from '@/components/ui/card'
-import { Construction, Calendar, BarChart3, Bell, ClipboardList, Building2 } from 'lucide-react'
+import { Construction, Calendar, BarChart3, Bell, ClipboardList, Building2, User } from 'lucide-react'
 
 interface ComingSoonPageProps {
   title: string
@@ -39,7 +39,7 @@ const ComingSoonPage = ({
           </p>
           {owner && (
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800/40 text-indigo-700 dark:text-indigo-400 text-sm font-semibold">
-              👤 Developed by {owner}
+              <User className="h-4 w-4" /> Developed by {owner}
             </div>
           )}
         </div>

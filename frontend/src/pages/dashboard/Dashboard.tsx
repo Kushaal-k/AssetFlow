@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Box, CheckCircle2, AlertCircle, CalendarClock } from 'lucide-react'
+import { Box, CheckCircle2, AlertCircle, CalendarClock, ArrowUp } from 'lucide-react'
 
 export const Dashboard = () => {
   return (
@@ -26,8 +26,8 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black text-slate-900 dark:text-white">1,248</div>
-            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-2 flex items-center">
-              <span className="text-lg leading-none mr-1">↑</span> 12% from last month
+            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1">
+              <ArrowUp className="h-3 w-3" /> 12% from last month
             </p>
           </CardContent>
         </Card>
@@ -44,8 +44,8 @@ export const Dashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black text-slate-900 dark:text-white">842</div>
-            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-2 flex items-center">
-              <span className="text-lg leading-none mr-1">↑</span> 4% from last week
+            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1">
+              <ArrowUp className="h-3 w-3" /> 4% from last week
             </p>
           </CardContent>
         </Card>

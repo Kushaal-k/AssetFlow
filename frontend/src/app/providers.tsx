@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ClerkProvider } from '@clerk/clerk-react'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,15 +13,19 @@ const queryClient = new QueryClient({
   },
 })
 
+const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || ''
+
 interface ProvidersProps {
   children: ReactNode
 }
 
 export const Providers = ({ children }: ProvidersProps) => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>{children}</BrowserRouter>
-    </QueryClientProvider>
+    <ClerkProvider publishableKey={clerkPublishableKey}>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>{children}</BrowserRouter>
+      </QueryClientProvider>
+    </ClerkProvider>
   )
 }
 export default Providers

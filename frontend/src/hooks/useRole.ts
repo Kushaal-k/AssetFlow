@@ -1,8 +1,8 @@
-import { useAuthStore } from '../store/authStore'
+import { useAuth } from './useAuth'
 import { ROLES } from '../constants'
 
 export const useRole = () => {
-  const user = useAuthStore((state) => state.user)
+  const { user } = useAuth()
 
   return {
     role: user?.role || null,
