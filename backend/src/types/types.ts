@@ -55,3 +55,19 @@ export interface IFetchMaintenanceQuery {
     status?: MaintenanceStatus;
     priority?: MaintenancePriority;
 }
+
+export type AuditStatus = 'OPEN' | 'CLOSED';
+export type AuditItemStatus = 'VERIFIED' | 'MISSING' | 'DAMAGED';
+
+export interface ICreateAuditCycleInput {
+    name: string;
+}
+
+export interface IRecordAuditItemInput {
+    cycleId: string;
+    assetId: string;
+    auditorId: string;
+    status: AuditItemStatus;
+    notes?: string;
+}
+
