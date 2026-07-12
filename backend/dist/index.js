@@ -8,6 +8,10 @@ import { createCategoryRouter } from './routes/categories.js';
 import { createUserRepository } from './repositories/userRepository.js';
 import { createDepartmentRepository } from './repositories/departmentRepository.js';
 import { createCategoryRepository } from './repositories/categoryRepository.js';
+import allocationRouter from './routes/allocation.routes.js';
+import transferRouter from './routes/transfer.routes.js';
+import bookingRouter from './routes/booking.routes.js';
+import maintenanceRouter from './routes/maintenance.routes.js';
 dotenv.config();
 export function createApp(options = {}) {
     const app = express();
@@ -29,6 +33,10 @@ export function createApp(options = {}) {
         const categoryRepository = options.categoryRepository ?? createCategoryRepository();
         app.use('/api/categories', createCategoryRouter(categoryRepository));
     }
+    app.use('/api/allocations', allocationRouter);
+    app.use('/api/transfers', transferRouter);
+    app.use('/api/bookings', bookingRouter);
+    app.use('/api/maintenance', maintenanceRouter);
     return app;
 }
 const isMainModule = process.argv[1] === fileURLToPath(import.meta.url);
