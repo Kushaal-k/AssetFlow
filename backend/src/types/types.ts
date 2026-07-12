@@ -71,3 +71,29 @@ export interface IRecordAuditItemInput {
     notes?: string;
 }
 
+export type RoleType = 'ADMIN' | 'ASSET_MANAGER' | 'DEPT_HEAD' | 'EMPLOYEE';
+
+export interface IFetchUsersQuery {
+    departmentId?: string;
+    role?: RoleType;
+}
+
+export interface IUpdateUserRoleInput {
+    role: RoleType;
+}
+
+export interface IFetchAssetsQuery {
+    search?: string;
+    categoryId?: string;
+    departmentId?: string;
+    status?: string; // e.g. 'AVAILABLE', 'ALLOCATED', etc.
+}
+
+export interface ICreateAssetInput {
+    name: string;
+    categoryId: string;
+    departmentId?: string;
+    serialNumber?: string;
+    condition?: string;
+    isBookable?: boolean;
+}
